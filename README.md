@@ -1,42 +1,67 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# OpenSilicon Bootcamp HackerSpace Trójmiasto. Powered by IEEE, Wokwi and Tiny Tapeout.
+This is work performed during Open Silicon Bootcamp orginized by Hackerspace Trójmiasto.
+![GDS Render](gds_vga_playground.png)
+![VGA playground interface](vga_play.png)
+## How it works
 
-- [Read the documentation for project](docs/info.md)
+This project implements a simple VGA logo display for **Hackerspace Trójmiasto**, generated entirely in hardware using Verilog.
 
-## What is Tiny Tapeout?
+The design includes a VGA timing generator that produces standard 640×480 @ 60 Hz synchronization signals (`hsync`, `vsync`, and active video region). During the active video period, the circuit calculates the current pixel coordinates and uses them to fetch pixel data from an internal bitmap ROM that stores the Hackerspace Trójmiasto logo.
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+Each logo pixel is encoded using a small number of bits and then mapped to RGB values using either:
 
-To learn more and get started, visit https://tinytapeout.com.
+*   a **fixed color mapping** (black, white, red), or
+*   a **palette-based color mode** where the visible logo color changes dynamically.
 
-## Set up your Verilog project
+The logo can:
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+*   appear as a single instance that “bounces” around the screen, or
+*   be **tiled across the entire display**, depending on configuration.
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+As the logo moves and hits the screen edges, its color index is automatically updated, creating a simple animated visual effect. All logic runs synchronously from a single clock and is intended to be fully synthesizable and suitable for ASIC implementation (e.g. Tiny Tapeout).
 
-## Enable GitHub actions to build the results page
+***
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+## How to test
 
-## Resources
+### On real hardware
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
+1.  Connect a VGA monitor to the chip using a **PMOD‑to‑VGA converter**.
+2.  Power the design and provide the clock input required by the VGA timing generator.
+3.  Observe the screen:
+    *   The Hackerspace Trójmiasto logo should be visible.
+    *   The logo should either move or tile depending on configuration.
+4.  Toggle user inputs:
+    *   **User input bit 0** enables or disables tiled display mode.
+    *   **User input bit 1** switches between fixed RGB colors and palette‑based color mode.
+5.  Verify that:
+    *   The logo color changes correctly when inputs are toggled.
+    *   The display remains stable with proper synchronization (no rolling or tearing).
 
-## What next?
+### In simulation
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+The project can also be tested using a Verilog simulator with a cocotb-based testbench. The testbench captures VGA output signals, reconstructs video frames, and compares them against a known reference image to verify correct pixel generation, color output, and logo positioning.
+
+***
+
+## External hardware
+
+To use this design with a standard VGA monitor, the following external hardware is required:
+
+*   **PMOD‑to‑VGA converter**  
+    This converts the digital RGB and synchronization signals produced by the chip into analog VGA signals compatible with a monitor.
+
+A suitable reference implementation is the PMOD VGA adapter used in the **Tiny Tapeout VGA examples**, which typically includes:
+
+*   Resistor ladder DACs for RGB signals
+*   Standard 15‑pin VGA (DE‑15) connector
+*   Proper grounding and signal routing for VGA timing stability
+
+Equivalent third‑party PMOD VGA adapter boards may also be used, provided they support:
+
+*   Separate `hsync` and `vsync`
+*   At least 1–2 bits per color channel
+
+***
