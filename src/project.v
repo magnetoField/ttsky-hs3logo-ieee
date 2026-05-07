@@ -16,7 +16,7 @@ parameter DISPLAY_HEIGHT = 480;  // VGA display height
 `define PIX_RED   2'b11
 // 2'b10 unused / transparent (optional)
 
-module tt_um_magnetofield_hs3  (
+module tt_um_magnetofield_ieee  (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
